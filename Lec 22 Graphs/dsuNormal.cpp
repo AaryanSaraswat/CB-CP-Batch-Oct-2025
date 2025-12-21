@@ -32,40 +32,35 @@ typedef vector<pii> vp;
 typedef vector<lli> vll;
 typedef vector<vll> vvll;
 
-bool check(int i,int j,int n,int m, vvi& vis){
-    return i>=0 and i<n and j>=0 and j<m and vis[i][j]==0;
-}
+class DSU{
+    vi parent;
+    public:
 
-int shortestPath(vvi &grid, pii src, pii des){
-    int n= sz(grid), m = sz(grid[0]);
+    DSU(int n){
+        parent.resize(n+1,0);
+        // har kisi node ka parent use khud bnana hoga
+        for(int i=0;i<=n;i++) parent[i] = i;
 
-    queue<vi> q; // { i, j , dist}
-    vvi vis(n+1,vi(m+1,0));
-
-    q.push({src.first , src.second , 0}); vis[src.fi][src.si] = 1;
-
-    vector<pii> directions = {{1,0},{0,1},{-1,0},{0,-1}};
-
-    while (!q.empty())
-    {
-        auto v = q.front(); q.pop();
-        int i = v[0], j= v[1], dist = v[2];
-
-        // if i had reached destination
-        if(i==des.fi and j==des.si) return dist;
-
-        for(auto &[di,dj] : directions){
-            int ni = i+di , nj = j+dj;
-            // out of bound
-            if(check(ni,nj,n,m,vis)){
-                q.push({ni,nj,dist+1});
-                vis[ni][nj]=1;
-            }
-        }
-
+        // iota(all(parent),0);
+        // iota(parent.begin(),parent.end(),0);
+        // [0,1,2,3,4,5]
     }
-    return -1;
-}
+
+    int find(int x){ // finds abs par / root of set
+        if(parent[x]==x) return x;
+
+        return find(parent[x]);
+    }
+
+    void join(int u,int v){
+        int rootu = find(u);
+        int rootv = find(v);
+
+        if(rootu==rootv) return;
+
+        parent[rootu] = rootv;
+    }
+};
 
 int32_t main()
 {

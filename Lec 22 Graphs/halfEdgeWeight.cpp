@@ -32,39 +32,66 @@ typedef vector<pii> vp;
 typedef vector<lli> vll;
 typedef vector<vll> vvll;
 
-bool check(int i,int j,int n,int m, vvi& vis){
-    return i>=0 and i<n and j>=0 and j<m and vis[i][j]==0;
-}
+vector<vector<pii>> adj;
+int n;
 
-int shortestPath(vvi &grid, pii src, pii des){
-    int n= sz(grid), m = sz(grid[0]);
+vi dijkstra(int src){
+    vi dist(n+1,INT_MAX);
 
-    queue<vi> q; // { i, j , dist}
-    vvi vis(n+1,vi(m+1,0));
+    priority_queue<pii,vector<pii>,greater<pii>> pq; // min-heap // {dist[node],node}
+    dist[src] = 0; pq.push({dist[src],src});
 
-    q.push({src.first , src.second , 0}); vis[src.fi][src.si] = 1;
-
-    vector<pii> directions = {{1,0},{0,1},{-1,0},{0,-1}};
-
-    while (!q.empty())
-    {
-        auto v = q.front(); q.pop();
-        int i = v[0], j= v[1], dist = v[2];
-
-        // if i had reached destination
-        if(i==des.fi and j==des.si) return dist;
-
-        for(auto &[di,dj] : directions){
-            int ni = i+di , nj = j+dj;
-            // out of bound
-            if(check(ni,nj,n,m,vis)){
-                q.push({ni,nj,dist+1});
-                vis[ni][nj]=1;
+    while(!pq.empty()){
+        auto [d,node] = pq.top(); pq.pop();
+        if( d > dist[node]) continue;  // save iterations
+        for(auto [ch,ew]: adj[node]){
+            if(dist[node]+ ew < dist[ch]){
+                dist[ch] = dist[node] + ew ;
+                pq.push({dist[ch],ch});
             }
         }
-
     }
-    return -1;
+    return dist;
+}
+
+int shortestPath(int src,int des, vvi &edges){
+    vi d1 = dijkstra(src);
+    vi d2 = dijkstra(des);
+
+    int ans =  1e18;
+
+    for(auto edge:edges){
+        int a = edge[0], b = edge[1], w= edge[2];
+
+        int op1  = d1[a] + w/2 + d2[b];
+        int op2  = d1[b] + w/2 + d2[a];
+
+        ans= min({ans,op1,op2});
+    }
+
+    return ans;
+
+}
+
+void solve(){
+    cin>>n;
+    adj.assign(n+1,{});
+
+    vvi edges;
+
+    int m; cin>>m;
+    loop(i,0,m){
+        int u,v,w;
+        cin>>u>>v>>w;
+        adj[u].pb({v,w});
+        adj[v].pb({u,w});
+
+        edges.pb({u,v,w});
+        // adj[v].pb({u,w});
+    }
+
+    
+    
 }
 
 int32_t main()
@@ -77,10 +104,10 @@ int32_t main()
 #endif
 
     int tc = 1;
-    cin >> tc;
+    // cin >> tc;
     while (tc--)
     {
-        
+        solve();
     }
     return 0;
 }
